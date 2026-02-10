@@ -7,10 +7,7 @@ import com.hopin.booking_service.dto.NearByDriversRequestDto;
 import com.hopin.booking_service.repository.BookingRepository;
 import com.hopin.booking_service.repository.DriverRepository;
 import com.hopin.booking_service.repository.PassengerRepository;
-import com.hopin.commonservice.models.Booking;
-import com.hopin.commonservice.models.Driver;
-import com.hopin.commonservice.models.ExactLocation;
-import com.hopin.commonservice.models.Passenger;
+import com.hopin.commonservice.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -39,53 +36,35 @@ public class BookingServiceImpl implements  BookingService{
     @Autowired
     DriverRepository driverRepository;
 
+    @Autowired
+    DriverSearchService driverSearchService;
+
     @Override
-    public CreateBookingResponseDto createBooking(CreateBookingDto bookingDto) {
+    public CreateBookingResponseDto createBooking(CreateBookingDto bookingDto) throws InterruptedException {
 
         //later on implement caching here
-        Passenger passenger = passengerRepo.getReferenceById(bookingDto.getPassengerId());
+        Passenger passenger = passengerRepo.findById(bookingDto.getPassengerId())
+                .orElse(null);
 
         Booking newBooking =Booking.builder()
                 .startLocation(bookingDto.getStartLocation())
-                .endLocation(bookingDto.getEndLocation()).build();
-//              .bookingStatus(hardcoded)
-//              .passenger
+                .endLocation(bookingDto.getEndLocation())
+                .bookingStatus(BookingStatus.ASSIGNING_DRIVER)
+                .passenger(passenger).build();
 //booking save
        Booking booking= bookingRepository.save(newBooking);
 
 
+//fetching driver list
+        driverSearchService.searchNearbyDrivers(bookingDto);
+//fetching dirvier list end----
 
-        ExactLocation pickupLocation=bookingDto.getStartLocation();
-
-        NearByDriversRequestDto driversRequestDto = NearByDriversRequestDto.builder()
-                .latitude(bookingDto.getStartLocation().getLatitude())
-                .longitude(bookingDto.getStartLocation().getLongitude())
-                .build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<NearByDriversRequestDto> entity = new HttpEntity<>(driversRequestDto,headers);
-
-       ResponseEntity<DriverLocationDto[]> response=restTemplate.
-               exchange(locationServiceUrl, HttpMethod.POST,entity, DriverLocationDto[].class);
-
-       List<DriverLocationDto> driverLocations = Arrays.asList(response.getBody());
-        List<Driver> driverList= new ArrayList<>();
-        for(DriverLocationDto driverLocationDto : driverLocations ){
-            Driver driver = driverRepository.getReferenceById(driverLocationDto.getDriverId());
-            driverList.add(driver);
-        }
-
-//        CreateBookingResponseDto bookingResponseDto=CreateBookingResponseDto.builder()
-//                .bookingId(booking.getId())
-////             .bookingStatus(booking.getStatus())
-//                .driverList(driverList).build();
         CreateBookingResponseDto bookingResponseDto=CreateBookingResponseDto.builder()
-                .bookingId(booking.getId()).build();
-//             .bookingStatus(booking.getStatus())
+                .bookingId(booking.getId())
+                .bookingStatus(booking.getBookingStatus()).build();
+//              .driverList(driverList).build();
 
-
+        System.out.println("returning the booking response");
         return bookingResponseDto;
     }
 }

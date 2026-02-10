@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface BookingService {
 
-    public CreateBookingResponseDto createBooking(CreateBookingDto bookingDto);
+    public CreateBookingResponseDto createBooking(CreateBookingDto bookingDto) throws InterruptedException;
 
 
 }

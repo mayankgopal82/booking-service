@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class DriverSearchService {
@@ -30,7 +31,7 @@ public class DriverSearchService {
     DriverRepository driverRepository;
 
     @Async
-    public void searchNearbyDrivers(CreateBookingDto bookingDto) throws InterruptedException {
+    public CompletableFuture<List<Long>> searchNearbyDrivers(CreateBookingDto bookingDto) throws InterruptedException {
 
         System.out.println("Inside the searchNearbyDriver- waiting");
 

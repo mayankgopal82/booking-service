@@ -55,8 +55,11 @@ public class BookingServiceImpl implements  BookingService{
        Booking booking= bookingRepository.save(newBooking);
 
 
-//fetching driver list
-        driverSearchService.searchNearbyDrivers(bookingDto);
+//fetching driver list - async
+        driverSearchService.searchNearbyDrivers(bookingDto).
+                thenAccept(driverlist ->{
+
+                });
 //fetching dirvier list end----
 
         CreateBookingResponseDto bookingResponseDto=CreateBookingResponseDto.builder()
@@ -66,5 +69,12 @@ public class BookingServiceImpl implements  BookingService{
 
         System.out.println("returning the booking response");
         return bookingResponseDto;
+    }
+
+    public void callSocketServiceRideRequest(List<Long> driverList){
+
+        HttpEntity<List<Long>> entity = new HttpEntity<>(driverList, (HttpHeaders) null);
+        restTemplate.exchange("localhost/api/socket/ride-requests",HttpMethod.POST,entity,void.class);
+
     }
 }

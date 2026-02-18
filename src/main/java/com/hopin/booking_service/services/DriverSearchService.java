@@ -45,21 +45,25 @@ public class DriverSearchService {
                 .longitude(bookingDto.getStartLocation().getLongitude())
                 .build();
 
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        HttpEntity<NearByDriversRequestDto> entity = new HttpEntity<>(driversRequestDto,headers);
-//
-//        //rest call to fetch nearby drivers' list
-//        ResponseEntity<DriverLocationDto[]> response=restTemplate.
-//                exchange(locationServiceUrl, HttpMethod.POST,entity, DriverLocationDto[].class);
-//
-//        List<DriverLocationDto> driverLocations = Arrays.asList(response.getBody());
-//        List<Driver> driverList= new ArrayList<>();
-//        for(DriverLocationDto driverLocationDto : driverLocations ){
-//            Driver driver = driverRepository.getReferenceById(driverLocationDto.getDriverId());
-//            driverList.add(driver);
-//        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<NearByDriversRequestDto> entity = new HttpEntity<>(driversRequestDto,headers);
+
+        //rest call to fetch nearby drivers' list
+        ResponseEntity<DriverLocationDto[]> response=restTemplate.
+                exchange(locationServiceUrl, HttpMethod.POST,entity, DriverLocationDto[].class);
+
+        List<DriverLocationDto> driverLocations = Arrays.asList(response.getBody());
+        List<Driver> driverList= new ArrayList<>();
+        List<Long> driverIds = new ArrayList<>();
+        for(DriverLocationDto driverLocationDto : driverLocations ){
+            Driver driver = driverRepository.getReferenceById(driverLocationDto.getDriverId());
+            driverList.add(driver);
+            driverIds.add(driverLocationDto.getDriverId());
+        }
+
+        return CompletableFuture.completedFuture(driverIds);
     }
 
 }

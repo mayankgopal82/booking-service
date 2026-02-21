@@ -56,7 +56,12 @@ public class BookingServiceImpl implements  BookingService{
 
 //fetching driver list - async
         driverSearchService.searchNearbyDrivers(bookingDto).
-                thenAccept(this::callSocketServiceRideRequest);
+                thenAccept((drivers)->{
+                    RideRequestDto rideRequestDto = RideRequestDto.builder().bookingId(booking.getId()).
+                            passengerId(passenger.getId()).startLocation(bookingDto.getStartLocation()).endLocation(bookingDto.getEndLocation())
+                            .driverIds(drivers).build();
+                    callSocketServiceRideRequest(rideRequestDto);
+                });
 //fetching dirvier list end----
 
         CreateBookingResponseDto bookingResponseDto=CreateBookingResponseDto.builder()
@@ -67,9 +72,9 @@ public class BookingServiceImpl implements  BookingService{
         return bookingResponseDto;
     }
 
-    public void callSocketServiceRideRequest(List<Long> driverList){
+    public void callSocketServiceRideRequest(RideRequestDto rideRequestDto){
 
-        HttpEntity<List<Long>> entity = new HttpEntity<>(driverList, (HttpHeaders) null);
+        HttpEntity<RideRequestDto> entity = new HttpEntity<>(rideRequestDto, (HttpHeaders) null);
         restTemplate.exchange("localhost/api/socket/ride-requests",HttpMethod.POST,entity,void.class);
 
     }
@@ -83,7 +88,8 @@ public class BookingServiceImpl implements  BookingService{
         bookingRepository.updateBookingStatusAndDriverById(BookingStatus.ACCEPTED,driver,bookingId);
 
         return UpdateBookingResponseDto.builder().status(updateBookingRequestDto.getStatus())
-                .driverId(updateBookingRequestDto.getDriverId()).build();
+                        .driverId(updateBookingRequestDto.getDriverId()).build();
+
     }
 
 }

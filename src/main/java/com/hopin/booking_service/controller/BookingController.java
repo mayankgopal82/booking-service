@@ -27,7 +27,7 @@ public class BookingController {
 
     }
 
-    @PatchMapping
+    @PatchMapping("/{bookingId}")
     public ResponseEntity<UpdateBookingResponseDto> updateBooking(@RequestBody UpdateBookingRequestDto updateBookingRequestDto, @PathVariable Long bookingId) {
         //TO_DO- add exception handling -
 //       int rowAffected = bookingService.updateBooking(updateBookingRequestDto, bookingId);

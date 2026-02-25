@@ -87,7 +87,7 @@ public class BookingServiceImpl implements  BookingService{
 
         bookingRepository.updateBookingStatusAndDriverById(BookingStatus.ACCEPTED,driver,bookingId);
 
-        return UpdateBookingResponseDto.builder().status(updateBookingRequestDto.getStatus())
+        return UpdateBookingResponseDto.builder().status(BookingStatus.valueOf(updateBookingRequestDto.getStatus()))
                         .driverId(updateBookingRequestDto.getDriverId()).build();
 
     }

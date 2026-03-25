@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -79,9 +80,23 @@ public class BookingServiceImpl implements  BookingService{
 
     }
 
-    public UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto, Long bookingId){
+    @Transactional
+    public synchronized UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto){
+
+
+        //verify the status value from the request body -
+        String updateStatus=updateBookingRequestDto.getStatus();
+        if(updateStatus.equalsIgnoreCase(String.valueOf(BookingStatus.ACCEPTED))){
+//           Optional<Booking> booking= bookingRepository.findById(updateBookingRequestDto.getBookingId());
+          Booking booking=bookingRepository.findById(updateBookingRequestDto.getBookingId()).
+                  orElseThrow(()-> new RuntimeException("Booking  not found"));
+           if(booking.getBookingStatus()==BookingStatus.ACCEPTED){
+               throw  new IllegalArgumentException("Booking Already Accepted");
+           }
+        }
 
         Long driverId = updateBookingRequestDto.getDriverId();
+        Long bookingId = updateBookingRequestDto.getBookingId();
         Driver driver = driverRepository.findById(driverId).
                 orElseThrow(()-> new RuntimeException("driver not found"));
 

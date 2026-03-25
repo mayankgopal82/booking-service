@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateBookingRequestDto {
 
-    private long driverId;
+    private Long driverId;
 //    private BookingStatus status;
     private String status;
+    private Long bookingId;
 
 }

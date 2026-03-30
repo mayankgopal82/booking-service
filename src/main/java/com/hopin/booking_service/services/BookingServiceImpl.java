@@ -81,14 +81,13 @@ public class BookingServiceImpl implements  BookingService{
     }
 
     @Transactional
-    public synchronized UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto){
-
+    public  UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto){
 
         //verify the status value from the request body -
         String updateStatus=updateBookingRequestDto.getStatus();
         if(updateStatus.equalsIgnoreCase(String.valueOf(BookingStatus.ACCEPTED))){
 //           Optional<Booking> booking= bookingRepository.findById(updateBookingRequestDto.getBookingId());
-          Booking booking=bookingRepository.findById(updateBookingRequestDto.getBookingId()).
+          Booking booking=bookingRepository.findByIdForUpdate(updateBookingRequestDto.getBookingId()).
                   orElseThrow(()-> new RuntimeException("Booking  not found"));
            if(booking.getBookingStatus()==BookingStatus.ACCEPTED){
                throw  new IllegalArgumentException("Booking Already Accepted");
@@ -108,3 +107,4 @@ public class BookingServiceImpl implements  BookingService{
     }
 
 }
+

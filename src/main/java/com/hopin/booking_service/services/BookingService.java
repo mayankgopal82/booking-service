@@ -11,6 +11,6 @@ import org.springframework.stereotype.Service;
 public interface BookingService {
 
     public CreateBookingResponseDto createBooking(CreateBookingDto bookingDto) throws InterruptedException;
-    public UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto, Long bookingId);
+    public UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto);
 
 }

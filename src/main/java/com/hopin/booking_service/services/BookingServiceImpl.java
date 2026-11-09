@@ -1,6 +1,7 @@
 package com.hopin.booking_service.services;
 
 import com.hopin.booking_service.dto.*;
+import com.hopin.booking_service.exception.DriverNotFoundException;
 import com.hopin.booking_service.repository.BookingRepository;
 import com.hopin.booking_service.repository.DriverRepository;
 import com.hopin.booking_service.repository.PassengerRepository;
@@ -70,6 +71,7 @@ public class BookingServiceImpl implements  BookingService{
                 .bookingStatus(booking.getBookingStatus()).build();
 
         System.out.println("returning the booking response");
+        //publish event to the passenger - getting you ride booked ........
         return bookingResponseDto;
     }
 
@@ -81,7 +83,7 @@ public class BookingServiceImpl implements  BookingService{
     }
 
     @Transactional
-    public  UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto){
+    public  UpdateBookingResponseDto updateBooking(UpdateBookingRequestDto updateBookingRequestDto)  {
 
         //verify the status value from the request body -
         String updateStatus=updateBookingRequestDto.getStatus();
@@ -96,10 +98,12 @@ public class BookingServiceImpl implements  BookingService{
 
         Long driverId = updateBookingRequestDto.getDriverId();
         Long bookingId = updateBookingRequestDto.getBookingId();
-        Driver driver = driverRepository.findById(driverId).
-                orElseThrow(()-> new RuntimeException("driver not found"));
+            Driver driver = driverRepository.findById(driverId).
+                    orElseThrow(() -> new DriverNotFoundException("driver not found"));
 
-        bookingRepository.updateBookingStatusAndDriverById(BookingStatus.ACCEPTED,driver,bookingId);
+            bookingRepository.updateBookingStatusAndDriverById(BookingStatus.ACCEPTED, driver, bookingId);
+        ///publish event to driver and passenger -
+//           through kafka
 
         return UpdateBookingResponseDto.builder().status(BookingStatus.valueOf(updateBookingRequestDto.getStatus()))
                         .driverId(updateBookingRequestDto.getDriverId()).build();

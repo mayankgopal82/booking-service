@@ -40,7 +40,7 @@ public class BookingController {
 //            return  new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //        return null;z
-        return new ResponseEntity<>(bookingService.updateBooking(updateBookingRequestDto, bookingId),HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.updateBooking(updateBookingRequestDto),HttpStatus.OK);
     }
 
 
